@@ -1,0 +1,72 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String        @id @default(cuid())
+  email     String        @unique
+  password  String
+  createdAt DateTime      @default(now())
+  interactions Interaction[]
+}
+
+model Interaction {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+}
+
+
+model Organization {
+  logoUrl     String?
+  primaryColor String? @default("#2563eb")
+  brandName   String? @default("AI Avatar")
+  id        String   @id @default(uuid())
+  name      String
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id             String         @id @default(uuid())
+  email          String         @unique
+  password       String
+  organizationId String?
+  organization   Organization?  @relation(fields: [organizationId], references: [id])
+  interactions   Interaction[]
+  createdAt      DateTime       @default(now())
+}
+
+
+model GpuTaskLog {
+  id        String   @id @default(uuid())
+  prompt    String
+  gpu       Int
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+}
+
+
+model GpuAlertLog {
+  id        String   @id @default(uuid())
+  message   String
+  gpuIndex  Int
+  createdAt DateTime @default(now())
+}
+
+
+model VideoRecording {
+  id        String   @id @default(uuid())
+  filename  String
+  orgId     String
+  createdAt DateTime @default(now())
+}

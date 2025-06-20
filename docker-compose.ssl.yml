@@ -1,0 +1,75 @@
+
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: avatar
+      POSTGRES_PASSWORD: avatar123
+      POSTGRES_DB: avatar_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./server
+    environment:
+      - DATABASE_URL=postgresql://avatar:avatar123@db:5432/avatar_db
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    expose:
+      - "3001"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./client
+    command: npm run build && npm run export
+    volumes:
+      - ./client/out:/usr/share/nginx/html
+    depends_on:
+      - backend
+
+  wav2lip:
+    build:
+      context: ./wav2lip
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    expose:
+      - "5000"
+    command: python3 app.py
+
+  tts:
+    build:
+      context: ./tts
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    expose:
+      - "5002"
+    command: python3 server.py
+
+  caddy:
+    image: caddy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./client/out:/usr/share/nginx/html
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+      - wav2lip
+      - tts
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

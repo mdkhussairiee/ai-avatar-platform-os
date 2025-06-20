@@ -1,0 +1,28 @@
+
+.avatar[data-gesture="idle"] {
+  animation: headIdle 3s infinite alternate ease-in-out;
+}
+.avatar[data-gesture="nod"] {
+  animation: nod 0.5s ease-in-out 3;
+}
+.avatar[data-gesture="shake"] {
+  animation: shake 0.5s ease-in-out 3;
+}
+
+@keyframes headIdle {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(2px); }
+}
+
+@keyframes nod {
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(10deg); }
+  100% { transform: rotateX(0deg); }
+}
+
+@keyframes shake {
+  0% { transform: rotateZ(0deg); }
+  25% { transform: rotateZ(5deg); }
+  75% { transform: rotateZ(-5deg); }
+  100% { transform: rotateZ(0deg); }
+}

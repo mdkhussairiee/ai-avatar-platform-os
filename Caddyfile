@@ -1,0 +1,14 @@
+
+# Auto HTTPS with Let's Encrypt
+yourdomain.com {
+  reverse_proxy /api/* backend:3001
+  reverse_proxy /wav2lip/* wav2lip:5000
+  reverse_proxy /tts/* tts:5002
+  root * /usr/share/nginx/html
+  file_server
+  encode gzip
+
+  log {
+    output file /var/log/caddy/access.log
+  }
+}
